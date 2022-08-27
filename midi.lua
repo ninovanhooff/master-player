@@ -26,7 +26,6 @@ end
 
 function createSampleSynth(samplePath, trackProps)
     local sample = snd.sample.new(samplePath)
-    print("sample", samplePath, sample)
     local s = snd.synth.new(sample)
     s:setVolume(trackProps.volume or defaultDrumVolume)
     -- no drum defaults yet, use wave defaults
@@ -49,23 +48,23 @@ end
 
 function createDrumInstrument(trackProps)
     local inst = snd.instrument.new()
-    inst:addVoice(createSampleSynth("drums/kick", trackProps), 35) -- todo duplicate memory usage when samples are used for multiple notes?
-    inst:addVoice(createSampleSynth("drums/kick", trackProps), 36)
-    inst:addVoice(createSampleSynth("drums/snare", trackProps), 38)
-    inst:addVoice(createSampleSynth("drums/clap", trackProps), 39)
-    inst:addVoice(createSampleSynth("drums/tom-low", trackProps), 41)
-    inst:addVoice(createSampleSynth("drums/tom-low", trackProps), 43)
-    inst:addVoice(createSampleSynth("drums/tom-mid", trackProps), 45)
-    inst:addVoice(createSampleSynth("drums/tom-mid", trackProps), 47)
-    inst:addVoice(createSampleSynth("drums/tom-hi", trackProps), 48)
-    inst:addVoice(createSampleSynth("drums/tom-hi", trackProps), 50)
-    inst:addVoice(createSampleSynth("drums/hh-closed", trackProps), 42)
-    inst:addVoice(createSampleSynth("drums/hh-closed", trackProps), 44)
-    inst:addVoice(createSampleSynth("drums/hh-open", trackProps), 46)
-    inst:addVoice(createSampleSynth("drums/cymbal-crash", trackProps), 49)
-    inst:addVoice(createSampleSynth("drums/cymbal-ride", trackProps), 51)
-    inst:addVoice(createSampleSynth("drums/cowbell", trackProps), 56)
-    inst:addVoice(createSampleSynth("drums/clav", trackProps), 75)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/kick", trackProps), 35) -- todo duplicate memory usage when samples are used for multiple notes?
+    inst:addVoice(createSampleSynth("libs/master-player/drums/kick", trackProps), 36) -- todo
+    inst:addVoice(createSampleSynth("libs/master-player/drums/snare", trackProps), 38)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/clap", trackProps), 39)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-low", trackProps), 41)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-low", trackProps), 43)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-mid", trackProps), 45)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-mid", trackProps), 47)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-hi", trackProps), 48)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-hi", trackProps), 50)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/hh-closed", trackProps), 42)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/hh-closed", trackProps), 44)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/hh-open", trackProps), 46)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/cymbal-crash", trackProps), 49)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/cymbal-ride", trackProps), 51)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/cowbell", trackProps), 56)
+    inst:addVoice(createSampleSynth("libs/master-player/drums/clav", trackProps), 75)
     return inst
 end
 
