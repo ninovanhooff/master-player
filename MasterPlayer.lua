@@ -23,17 +23,12 @@ function MasterPlayer:init(songPath)
 end
 
 function MasterPlayer:play()
-    self.sequence:play(function() self:onFinished()  end)
+    self.sequence:setLoops(0, self.sequence:getLength())
+    self.sequence:play()
 end
 
 function MasterPlayer:stop()
     self.sequence:stop()
-end
-
-function MasterPlayer:onFinished()
-    if self.sequence then
-        self:play()
-    end
 end
 
 function MasterPlayer:setVolume(vol)
