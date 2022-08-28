@@ -52,7 +52,7 @@ function createSampledInstrument(trackProps)
     local inst = snd.instrument.new()
     local instrumentDir = "libs/master-player/" .. trackProps.synth .. "/"
     local instrumentProps = playdate.file.run(instrumentDir .. "instrumentProps")
-    local synth, noteProps, transpose, noteStart, noteEnd
+    local synth, noteProps, transpose, noteStart, noteEnd, noteRoot, offset
     local addedNoteProps = {}
     print("notes: ", trackProps.notes)
     for _, note in ipairs(trackProps.notes) do
@@ -61,7 +61,9 @@ function createSampledInstrument(trackProps)
             if not lume.find(addedNoteProps, noteProps) then
                 noteStart = noteProps.noteStart or note
                 noteEnd = noteProps.noteEnd or noteStart
-                transpose = (noteProps.noteRoot or 60) - noteStart -- the default noteRoot is C4 (midi note 60)
+                noteRoot = noteProps.noteRoot or noteStart
+                offset = noteRoot - noteStart
+                transpose = 60 - noteStart - offset-- the default noteRoot is C4 (midi note 60)
                 synth = createSampleSynth( instrumentDir .. noteProps.path, trackProps)
                 print("Adding synth for note", noteStart, noteEnd, transpose)
                 inst:addVoice(synth, noteStart, noteEnd, transpose ) -- todo duplicate memory usage when samples are used for multiple notes?
