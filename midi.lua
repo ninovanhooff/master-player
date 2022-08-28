@@ -66,8 +66,7 @@ function createSampledInstrument(trackProps)
                 transpose = 60 - noteStart - offset-- the default noteRoot is C4 (midi note 60)
                 synth = createSampleSynth( instrumentDir .. noteProps.path, trackProps)
                 print("Adding synth for note", noteStart, noteEnd, transpose)
-                inst:addVoice(synth, noteStart, noteEnd, transpose ) -- todo duplicate memory usage when samples are used for multiple notes?
-                --inst:addVoice(synth, noteStart) -- todo duplicate memory usage when samples are used for multiple notes?
+                inst:addVoice(synth, noteStart, noteEnd, transpose )
                 table.insert(addedNoteProps, noteProps)
             end
         else
