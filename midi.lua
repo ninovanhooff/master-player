@@ -47,13 +47,13 @@ function createWaveInstrument(polyphony, trackProps)
     return inst
 end
 
-function createDrumInstrument(trackProps)
+function createSampledInstrument(trackProps)
     local inst = snd.instrument.new()
-    local instrumentProps = playdate.file.run("libs/master-player/drums/instrumentProps")
+    local instrumentProps = playdate.file.run("libs/master-player/" .. trackProps.synth .. "/instrumentProps")
     print("notes: ", trackProps.notes)
     for _, note in ipairs(trackProps.notes) do
         if instrumentProps[note] then
-            inst:addVoice(createSampleSynth("libs/master-player/drums/" .. instrumentProps[note], trackProps), note) -- todo duplicate memory usage when samples are used for multiple notes?
+            inst:addVoice(createSampleSynth("libs/master-player/drums/" .. instrumentProps[note].path, trackProps), note) -- todo duplicate memory usage when samples are used for multiple notes?
         else
             print("instrument does not support note " .. note)
         end
@@ -62,8 +62,8 @@ function createDrumInstrument(trackProps)
 end
 
 function createInstrument(polyphony, trackProps)
-    if trackProps.synth == "drums" then
-        return createDrumInstrument(trackProps)
+    if type(trackProps.synth) == "string" then
+        return createSampledInstrument(trackProps)
     else
         return createWaveInstrument(polyphony, trackProps)
     end
@@ -107,7 +107,7 @@ local function createTrackProps(s)
                 props.decay = defaultWaveDecay
                 props.sustain = defaultWaveSustain
                 props.release = defaultWaveRelease
-                track:setInstrument(createDrumInstrument(trackProps[i]))
+                track:setInstrument(createSampledInstrument(trackProps[i]))
             else
                 print("Creating Sawtooth for track", i)
                 props.synth = snd.kWaveSawtooth
@@ -129,6 +129,9 @@ function loadTrackProps(s, trackProps)
     local numTracks = s:getTrackCount()
     for i=1,numTracks do
         local track = s:getTrackAtIndex(i)
+        if not trackProps[i].notes then
+            trackProps[i].notes = getNotesForTrack(track)
+        end
         if track ~= nil then
             local polyphony = track:getPolyphony()
             track:setInstrument(createInstrument(polyphony, trackProps[i]))
