@@ -54,7 +54,6 @@ function createSampledInstrument(trackProps)
     local instrumentProps = playdate.file.run(instrumentDir .. "instrumentProps")
     local synth, noteProps, transpose, noteStart, noteEnd, noteRoot, offset
     local addedNoteProps = {}
-    print("notes: ", trackProps.notes)
     for _, note in ipairs(trackProps.notes) do
         noteProps = instrumentProps[note]
         if noteProps then
@@ -65,7 +64,6 @@ function createSampledInstrument(trackProps)
                 offset = noteRoot - noteStart
                 transpose = 60 - noteStart - offset-- the default noteRoot is C4 (midi note 60)
                 synth = createSampleSynth( instrumentDir .. noteProps.path, trackProps)
-                print("Adding synth for note", noteStart, noteEnd, transpose)
                 inst:addVoice(synth, noteStart, noteEnd, transpose )
                 table.insert(addedNoteProps, noteProps)
             end
@@ -156,7 +154,6 @@ function loadTrackProps(s, trackProps)
 end
 
 function loadMidi(path, _trackProps)
-    print("loading", path)
     local trackProps = _trackProps or {}
     local s = snd.sequence.new(path)
     local ntracks = s:getTrackCount()

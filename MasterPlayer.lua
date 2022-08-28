@@ -30,7 +30,9 @@ function MasterPlayer:stop()
     self.sequence:stop()
 end
 
---function MasterPlayer.new(songPath)
---    _, self.trackProps = loadMidi(songPath, self.trackProps)
---    return MasterPlayer(songPath)
---end
+function MasterPlayer:setVolume(vol)
+    for i, item in ipairs(self.trackProps) do
+        local effectiveVolume = vol * item.volume
+        self.sequence:getTrackAtIndex(i):getInstrument():setVolume(effectiveVolume)
+    end
+end
