@@ -4,6 +4,7 @@
 --- DateTime: 22/07/2022 14:45
 ---
 
+local lume <const> = lume
 local snd <const> = playdate.sound
 local defaultDrumVolume <const> = 0.5
 local defaultWaveVolume <const> = 0.2
@@ -48,23 +49,15 @@ end
 
 function createDrumInstrument(trackProps)
     local inst = snd.instrument.new()
-    inst:addVoice(createSampleSynth("libs/master-player/drums/kick", trackProps), 35) -- todo duplicate memory usage when samples are used for multiple notes?
-    inst:addVoice(createSampleSynth("libs/master-player/drums/kick", trackProps), 36) -- todo
-    inst:addVoice(createSampleSynth("libs/master-player/drums/snare", trackProps), 38)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/clap", trackProps), 39)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-low", trackProps), 41)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-low", trackProps), 43)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-mid", trackProps), 45)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-mid", trackProps), 47)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-hi", trackProps), 48)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/tom-hi", trackProps), 50)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/hh-closed", trackProps), 42)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/hh-closed", trackProps), 44)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/hh-open", trackProps), 46)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/cymbal-crash", trackProps), 49)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/cymbal-ride", trackProps), 51)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/cowbell", trackProps), 56)
-    inst:addVoice(createSampleSynth("libs/master-player/drums/clav", trackProps), 75)
+    local instrumentProps = playdate.file.run("libs/master-player/drums/instrumentProps")
+    print("notes: ", trackProps.notes)
+    for _, note in ipairs(trackProps.notes) do
+        if instrumentProps[note] then
+            inst:addVoice(createSampleSynth("libs/master-player/drums/" .. instrumentProps[note], trackProps), note) -- todo duplicate memory usage when samples are used for multiple notes?
+        else
+            print("instrument does not support note " .. note)
+        end
+    end
     return inst
 end
 
@@ -74,6 +67,14 @@ function createInstrument(polyphony, trackProps)
     else
         return createWaveInstrument(polyphony, trackProps)
     end
+end
+
+local function getNotesForTrack(track)
+    local notes = {}
+    for _, item in ipairs(track:getNotes(1, track:getLength())) do
+        notes[item.note] = true
+    end
+    return lume.sort(lume.keys(notes))
 end
 
 local function createTrackProps(s)
@@ -90,9 +91,11 @@ local function createTrackProps(s)
             if polyphony > poly then poly = polyphony end
             print("track "..i.." has polyphony ".. polyphony)
 
-            local props = trackProps[i] or {
-                isMuted = false,
+            local notes = getNotesForTrack(track)
+            local props = {
+                isMuted = #notes < 1,
                 isSolo = false,
+                notes = notes
             }
             trackProps[i] = props
 
@@ -104,7 +107,7 @@ local function createTrackProps(s)
                 props.decay = defaultWaveDecay
                 props.sustain = defaultWaveSustain
                 props.release = defaultWaveRelease
-                track:setInstrument(createDrumInstrument(trackProps))
+                track:setInstrument(createDrumInstrument(trackProps[i]))
             else
                 print("Creating Sawtooth for track", i)
                 props.synth = snd.kWaveSawtooth
@@ -113,7 +116,7 @@ local function createTrackProps(s)
                 props.decay = defaultWaveDecay
                 props.sustain = defaultWaveSustain
                 props.release = defaultWaveRelease
-                local inst = createWaveInstrument(polyphony, trackProps)
+                local inst = createWaveInstrument(polyphony, trackProps[i])
                 track:setInstrument(inst)
             end
         end
@@ -144,6 +147,7 @@ function loadMidi(path, _trackProps)
     if ntracks == #trackProps then
         return s, loadTrackProps(s, trackProps)
     else
+        print("Creating track props for", path)
         return s, createTrackProps(s)
     end
 end

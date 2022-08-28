@@ -4,6 +4,7 @@
 --- DateTime: 25/08/2022 22:19
 ---
 
+lume = import "lume"
 import "CoreLibs/object"
 import "midi.lua"
 
