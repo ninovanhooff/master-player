@@ -26,6 +26,7 @@ function newWaveSynth(trackProps)
 end
 
 function createSampleSynth(samplePath, trackProps)
+    print(samplePath)
     local sample = snd.sample.new(samplePath)
     local s = snd.synth.new(sample)
     s:setVolume(trackProps.volume or defaultDrumVolume)
@@ -49,11 +50,24 @@ end
 
 function createSampledInstrument(trackProps)
     local inst = snd.instrument.new()
-    local instrumentProps = playdate.file.run("libs/master-player/" .. trackProps.synth .. "/instrumentProps")
+    local instrumentDir = "libs/master-player/" .. trackProps.synth .. "/"
+    local instrumentProps = playdate.file.run(instrumentDir .. "instrumentProps")
+    local synth, noteProps, transpose, noteStart, noteEnd
+    local addedNoteProps = {}
     print("notes: ", trackProps.notes)
     for _, note in ipairs(trackProps.notes) do
-        if instrumentProps[note] then
-            inst:addVoice(createSampleSynth("libs/master-player/drums/" .. instrumentProps[note].path, trackProps), note) -- todo duplicate memory usage when samples are used for multiple notes?
+        noteProps = instrumentProps[note]
+        if noteProps then
+            if not lume.find(addedNoteProps, noteProps) then
+                noteStart = noteProps.noteStart or note
+                noteEnd = noteProps.noteEnd or noteStart
+                transpose = (noteProps.noteRoot or 60) - noteStart -- the default noteRoot is C4 (midi note 60)
+                synth = createSampleSynth( instrumentDir .. noteProps.path, trackProps)
+                print("Adding synth for note", noteStart, noteEnd, transpose)
+                inst:addVoice(synth, noteStart, noteEnd, transpose ) -- todo duplicate memory usage when samples are used for multiple notes?
+                --inst:addVoice(synth, noteStart) -- todo duplicate memory usage when samples are used for multiple notes?
+                table.insert(addedNoteProps, noteProps)
+            end
         else
             print("instrument does not support note " .. note)
         end
