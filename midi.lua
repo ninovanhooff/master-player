@@ -4,6 +4,8 @@
 --- DateTime: 22/07/2022 14:45
 ---
 
+import "./SampleCache.lua"
+
 local lume <const> = lume
 local snd <const> = playdate.sound
 local defaultDrumVolume <const> = 0.5
@@ -27,7 +29,7 @@ end
 
 function createSampleSynth(samplePath, trackProps)
     print(samplePath)
-    local sample = snd.sample.new(samplePath)
+    local sample = sampleCache:getOrLoad(samplePath)
     if not sample then
         error("sample not found: " + samplePath)
     end
