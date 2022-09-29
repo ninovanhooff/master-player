@@ -2,7 +2,7 @@ local tom3 = { path="3-ElecTom3Mono.wav", noteStart = 47, noteEnd = 48 }
 
 return {
     [36] = { path="3-ElecBD2Mono.wav"},
-    [38] = { path="key38-Elect sn1.wav" },
+    [38] = { path="key38-Acoustic Snare 1.wav" },
     [40] = { path="drm-ElecPowerSnar(L.wav" },
     [41] = { path="3-ElecTom5Mono.wav" },
     [42] = { path="0-HiHatClosedSter(L.wav" },
