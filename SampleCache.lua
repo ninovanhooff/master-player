@@ -17,11 +17,9 @@ end
 
 function SampleCache:getOrLoad(path)
     if self.map[path] then
-        printf("SampleCache hit", path)
         return self.map[path]
     end
 
-    printf("SampleCache miss", path)
     local sample = loadSample(path)
     self.map[path] = sample
     return sample
