@@ -28,6 +28,9 @@ end
 function createSampleSynth(samplePath, trackProps)
     print(samplePath)
     local sample = snd.sample.new(samplePath)
+    if not sample then
+        error("sample not found: " + samplePath)
+    end
     local s = snd.synth.new(sample)
     s:setVolume(trackProps.volume or defaultDrumVolume)
     -- no drum defaults yet, use wave defaults
