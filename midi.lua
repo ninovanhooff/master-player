@@ -31,7 +31,7 @@ function createSampleSynth(samplePath, trackProps)
     print(samplePath)
     local sample = sampleCache:getOrLoad(samplePath)
     if not sample then
-        error("sample not found: " + samplePath)
+        error("sample not found: " .. samplePath)
     end
     local s = snd.synth.new(sample)
     s:setVolume(trackProps.volume or defaultDrumVolume)
