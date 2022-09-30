@@ -28,7 +28,7 @@ function newWaveSynth(trackProps)
 end
 
 function createSampleSynth(samplePath, trackProps)
-    print(samplePath)
+    print(playdate.sound.getCurrentTime(), samplePath)
     local sample = sampleCache:getOrLoad(samplePath)
     if not sample then
         error("sample not found: " + samplePath)
@@ -62,13 +62,13 @@ function createSampledInstrument(trackProps)
     for _, note in ipairs(trackProps.notes) do
         noteProps = instrumentProps[note]
         if noteProps then
+            synth = createSampleSynth( instrumentDir .. noteProps.path, trackProps)
             if not lume.find(addedNoteProps, noteProps) then
                 noteStart = noteProps.noteStart or note
                 noteEnd = noteProps.noteEnd or noteStart
                 noteRoot = noteProps.noteRoot or noteStart
                 offset = noteRoot - noteStart
                 transpose = 60 - noteStart - offset-- the default noteRoot is C4 (midi note 60)
-                synth = createSampleSynth( instrumentDir .. noteProps.path, trackProps)
                 inst:addVoice(synth, noteStart, noteEnd, transpose )
                 table.insert(addedNoteProps, noteProps)
             end
@@ -146,6 +146,7 @@ end
 function loadTrackProps(s, trackProps)
     local numTracks = s:getTrackCount()
     for i=1,numTracks do
+        print(playdate.sound.getCurrentTime(), "track", i)
         local track = s:getTrackAtIndex(i)
         if not trackProps[i].notes then
             trackProps[i].notes = getNotesForTrack(track)
@@ -159,8 +160,10 @@ function loadTrackProps(s, trackProps)
 end
 
 function loadMidi(path, _trackProps)
+    print(playdate.sound.getCurrentTime(), "load midi")
     local trackProps = _trackProps or {}
     local s = snd.sequence.new(path)
+    print(playdate.sound.getCurrentTime(), "sequence loaded")
     local ntracks = s:getTrackCount()
     print("ntracks", ntracks)
 
