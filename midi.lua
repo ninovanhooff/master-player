@@ -9,7 +9,7 @@ import "./SampleCache.lua"
 local masterplayer <const> = masterplayer
 local lume <const> = masterplayer.lume
 local snd <const> = playdate.sound
-local defaultDrumVolume <const> = 0.5
+local defaultSampledVolume <const> = 0.5
 local defaultWaveVolume <const> = 0.2
 local defaultWaveAttack <const> = 0
 local defaultWaveDecay <const> = 0.15
@@ -17,7 +17,7 @@ local defaultWaveSustain<const> = 0.2
 local defaultWaveRelease <const> = 0
 
 function masterplayer.newWaveSynth(trackProps)
-    local s = snd.synth.new(trackProps.synth or snd.kWaveSawtooth)
+    local s = snd.synth.new(trackProps.instrument.source or snd.kWaveSawtooth)
     s:setVolume(trackProps.volume or defaultWaveVolume)
     s:setADSR(
         trackProps.attack or defaultWaveAttack,
@@ -35,7 +35,7 @@ function masterplayer.createSampleSynth(samplePath, trackProps)
         error("sample not found: " .. samplePath)
     end
     local s = snd.synth.new(sample)
-    s:setVolume(trackProps.volume or defaultDrumVolume)
+    s:setVolume(trackProps.volume or defaultSampledVolume)
     -- no drum defaults yet, use wave defaults
     s:setADSR(
         trackProps.attack or defaultWaveAttack,
@@ -56,7 +56,7 @@ end
 
 function masterplayer.createSampledInstrument(trackProps)
     local inst = snd.instrument.new()
-    local instrumentDir = "libs/master-player/" .. trackProps.synth .. "/"
+    local instrumentDir = trackProps.instrument.source
     local instrumentProps = playdate.file.run(instrumentDir .. "instrumentProps")
     local synth, noteProps, transpose, noteStart, noteEnd, noteRoot, offset
     local addedNoteProps = {}
@@ -81,7 +81,7 @@ function masterplayer.createSampledInstrument(trackProps)
 end
 
 function masterplayer.createInstrument(polyphony, trackProps)
-    if type(trackProps.synth) == "string" then
+    if type(trackProps.instrument.source) == "string" then
         return masterplayer.createSampledInstrument(trackProps)
     else
         return masterplayer.createWaveInstrument(polyphony, trackProps)
@@ -118,26 +118,15 @@ local function createTrackProps(s)
             }
             trackProps[i] = props
 
-            if i == 10 then
-                print("Creating Drums for track", i)
-                props.synth = "drums"
-                props.volume = defaultDrumVolume
-                props.attack = defaultWaveAttack
-                props.decay = defaultWaveDecay
-                props.sustain = defaultWaveSustain
-                props.release = defaultWaveRelease
-                track:setInstrument(masterplayer.createSampledInstrument(trackProps[i]))
-            else
-                print("Creating Sawtooth for track", i)
-                props.synth = snd.kWaveSawtooth
-                props.volume = defaultWaveVolume
-                props.attack = defaultWaveAttack
-                props.decay = defaultWaveDecay
-                props.sustain = defaultWaveSustain
-                props.release = defaultWaveRelease
-                local inst = masterplayer.createWaveInstrument(polyphony, trackProps[i])
-                track:setInstrument(inst)
-            end
+            print("Creating Sawtooth for track", i)
+            props.instrument = masterplayer.sawToothInstrument
+            props.volume = defaultWaveVolume
+            props.attack = defaultWaveAttack
+            props.decay = defaultWaveDecay
+            props.sustain = defaultWaveSustain
+            props.release = defaultWaveRelease
+            local inst = masterplayer.createWaveInstrument(polyphony, trackProps[i])
+            track:setInstrument(inst)
         end
     end
 
