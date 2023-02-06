@@ -10,7 +10,7 @@ local loadSample = playdate.sound.sample.new
 class("SampleCache", {}, masterplayer).extends()
 
 function masterplayer.SampleCache:init()
-    SampleCache.super.init()
+    masterplayer.SampleCache.super.init()
     self.map = {}
 end
 
@@ -25,6 +25,6 @@ function masterplayer.SampleCache:getOrLoad(path)
 end
 
 -- global singleton
-if not sampleCache then
-    sampleCache = SampleCache()
+if not masterplayer.sampleCache then
+    masterplayer.sampleCache = masterplayer.SampleCache()
 end
