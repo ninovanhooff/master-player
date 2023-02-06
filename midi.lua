@@ -6,7 +6,8 @@
 
 import "./SampleCache.lua"
 
-local lume <const> = lume
+local masterplayer <const> = masterplayer
+local lume <const> = masterplayer.lume
 local snd <const> = playdate.sound
 local defaultDrumVolume <const> = 0.5
 local defaultWaveVolume <const> = 0.2
@@ -15,7 +16,7 @@ local defaultWaveDecay <const> = 0.15
 local defaultWaveSustain<const> = 0.2
 local defaultWaveRelease <const> = 0
 
-function newWaveSynth(trackProps)
+function masterplayer.newWaveSynth(trackProps)
     local s = snd.synth.new(trackProps.synth or snd.kWaveSawtooth)
     s:setVolume(trackProps.volume or defaultWaveVolume)
     s:setADSR(
@@ -27,9 +28,9 @@ function newWaveSynth(trackProps)
     return s
 end
 
-function createSampleSynth(samplePath, trackProps)
+function masterplayer.createSampleSynth(samplePath, trackProps)
     print(samplePath)
-    local sample = sampleCache:getOrLoad(samplePath)
+    local sample = masterplayer.sampleCache:getOrLoad(samplePath)
     if not sample then
         error("sample not found: " .. samplePath)
     end
@@ -45,15 +46,15 @@ function createSampleSynth(samplePath, trackProps)
     return s
 end
 
-function createWaveInstrument(polyphony, trackProps)
+function masterplayer.createWaveInstrument(polyphony, trackProps)
     local inst = snd.instrument.new()
     for _=1, polyphony do
-        inst:addVoice(newWaveSynth(trackProps))
+        inst:addVoice(masterplayer.newWaveSynth(trackProps))
     end
     return inst
 end
 
-function createSampledInstrument(trackProps)
+function masterplayer.createSampledInstrument(trackProps)
     local inst = snd.instrument.new()
     local instrumentDir = "libs/master-player/" .. trackProps.synth .. "/"
     local instrumentProps = playdate.file.run(instrumentDir .. "instrumentProps")
@@ -68,7 +69,7 @@ function createSampledInstrument(trackProps)
                 noteRoot = noteProps.noteRoot or noteStart
                 offset = noteRoot - noteStart
                 transpose = 60 - noteStart - offset-- the default noteRoot is C4 (midi note 60)
-                synth = createSampleSynth( instrumentDir .. noteProps.path, trackProps)
+                synth = masterplayer.createSampleSynth( instrumentDir .. noteProps.path, trackProps)
                 inst:addVoice(synth, noteStart, noteEnd, transpose )
                 table.insert(addedNoteProps, noteProps)
             end
@@ -79,11 +80,11 @@ function createSampledInstrument(trackProps)
     return inst
 end
 
-function createInstrument(polyphony, trackProps)
+function masterplayer.createInstrument(polyphony, trackProps)
     if type(trackProps.synth) == "string" then
-        return createSampledInstrument(trackProps)
+        return masterplayer.createSampledInstrument(trackProps)
     else
-        return createWaveInstrument(polyphony, trackProps)
+        return masterplayer.createWaveInstrument(polyphony, trackProps)
     end
 end
 
@@ -125,7 +126,7 @@ local function createTrackProps(s)
                 props.decay = defaultWaveDecay
                 props.sustain = defaultWaveSustain
                 props.release = defaultWaveRelease
-                track:setInstrument(createSampledInstrument(trackProps[i]))
+                track:setInstrument(masterplayer.createSampledInstrument(trackProps[i]))
             else
                 print("Creating Sawtooth for track", i)
                 props.synth = snd.kWaveSawtooth
@@ -134,7 +135,7 @@ local function createTrackProps(s)
                 props.decay = defaultWaveDecay
                 props.sustain = defaultWaveSustain
                 props.release = defaultWaveRelease
-                local inst = createWaveInstrument(polyphony, trackProps[i])
+                local inst = masterplayer.createWaveInstrument(polyphony, trackProps[i])
                 track:setInstrument(inst)
             end
         end
@@ -143,7 +144,7 @@ local function createTrackProps(s)
     return trackProps
 end
 
-function loadTrackProps(s, trackProps)
+function masterplayer.loadTrackProps(s, trackProps)
     local numTracks = s:getTrackCount()
     for i=1,numTracks do
         local track = s:getTrackAtIndex(i)
@@ -152,20 +153,20 @@ function loadTrackProps(s, trackProps)
         end
         if track ~= nil then
             local polyphony = track:getPolyphony()
-            track:setInstrument(createInstrument(polyphony, trackProps[i]))
+            track:setInstrument(masterplayer.createInstrument(polyphony, trackProps[i]))
         end
     end
     return trackProps
 end
 
-function loadMidi(path, _trackProps)
+function masterplayer.loadMidi(path, _trackProps)
     local trackProps = _trackProps or {}
     local s = snd.sequence.new(path)
     local ntracks = s:getTrackCount()
     print("ntracks", ntracks)
 
     if ntracks == #trackProps then
-        return s, loadTrackProps(s, trackProps)
+        return s, masterplayer.loadTrackProps(s, trackProps)
     else
         print("Creating track props for", path)
         return s, createTrackProps(s)

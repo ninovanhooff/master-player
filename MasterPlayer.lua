@@ -4,14 +4,12 @@
 --- DateTime: 25/08/2022 22:19
 ---
 
-lume = import "lume"
-import "CoreLibs/object"
-import "midi.lua"
+local masterplayer <const> = masterplayer
 
-class("MasterPlayer").extends()
+class("MasterPlayer", {}, masterplayer).extends()
 
-function MasterPlayer:init(songPath)
-    MasterPlayer.super.init()
+function masterplayer.MasterPlayer:init(songPath)
+    MasterPlayer.super.init(self)
 
     if self.sequence then
         self.sequence:stop()
@@ -19,21 +17,25 @@ function MasterPlayer:init(songPath)
     end
     self.trackProps = json.decodeFile(songPath .. ".json")
     print(songPath, trackProps)
-    self.sequence, self.trackProps = loadMidi(songPath, self.trackProps)
+    self.sequence, self.trackProps = masterplayer.loadMidi(songPath, self.trackProps)
 end
 
-function MasterPlayer:play()
+function masterplayer.MasterPlayer:play()
     self.sequence:setLoops(0, self.sequence:getLength())
     self.sequence:play()
 end
 
-function MasterPlayer:stop()
+function masterplayer.MasterPlayer:stop()
     self.sequence:stop()
 end
 
-function MasterPlayer:setVolume(vol)
+function masterplayer.MasterPlayer:setVolume(vol)
     for i, item in ipairs(self.trackProps) do
         local effectiveVolume = vol * item.volume
         self.sequence:getTrackAtIndex(i):getInstrument():setVolume(effectiveVolume)
     end
+end
+
+function masterplayer.new(songPath)
+    return masterplayer.MasterPlayer(songPath)
 end

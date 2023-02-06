@@ -4,18 +4,17 @@
 --- DateTime: 29/09/2022 22:21
 ---
 
-import "CoreLibs/object"
-
+local masterplayer <const> = masterplayer
 local loadSample = playdate.sound.sample.new
 
-class("SampleCache").extends()
+class("SampleCache", {}, masterplayer).extends()
 
-function SampleCache:init()
+function masterplayer.SampleCache:init()
     SampleCache.super.init()
     self.map = {}
 end
 
-function SampleCache:getOrLoad(path)
+function masterplayer.SampleCache:getOrLoad(path)
     if self.map[path] then
         return self.map[path]
     end
