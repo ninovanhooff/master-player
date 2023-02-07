@@ -21,8 +21,8 @@ function masterplayer.newWaveSynth(trackProps)
     s:setVolume(trackProps.volume or defaultWaveVolume)
     s:setADSR(
         trackProps.attack or defaultWaveAttack,
-        trackProps.decay or defaultWaveDecay, 
-        trackProps.sustain or defaultWaveSustain, 
+        trackProps.decay or defaultWaveDecay,
+        trackProps.sustain or defaultWaveSustain,
         trackProps.release or defaultWaveRelease
     )
     return s
@@ -56,8 +56,8 @@ end
 
 function masterplayer.createSampledInstrument(trackProps)
     local inst = snd.instrument.new()
-    local instrumentDir = trackProps.instrument.source
-    local instrumentProps = playdate.file.run(instrumentDir .. "instrumentProps")
+    local instrumentProps = trackProps.instrument.source
+    print("creating sampled instrument for ", instrumentProps.id)
     local synth, noteProps, transpose, noteStart, noteEnd, noteRoot, offset
     local addedNoteProps = {}
     for _, note in ipairs(trackProps.notes) do
@@ -69,7 +69,7 @@ function masterplayer.createSampledInstrument(trackProps)
                 noteRoot = noteProps.noteRoot or noteStart
                 offset = noteRoot - noteStart
                 transpose = 60 - noteStart - offset-- the default noteRoot is C4 (midi note 60)
-                synth = masterplayer.createSampleSynth( instrumentDir .. noteProps.path, trackProps)
+                synth = masterplayer.createSampleSynth( noteProps.path, trackProps)
                 inst:addVoice(synth, noteStart, noteEnd, transpose )
                 table.insert(addedNoteProps, noteProps)
             end
@@ -81,7 +81,7 @@ function masterplayer.createSampledInstrument(trackProps)
 end
 
 function masterplayer.createInstrument(polyphony, trackProps)
-    if type(trackProps.instrument.source) == "string" then
+    if type(trackProps.instrument.source) == "table" then
         return masterplayer.createSampledInstrument(trackProps)
     else
         return masterplayer.createWaveInstrument(polyphony, trackProps)

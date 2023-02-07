@@ -21,6 +21,7 @@ masterplayer.instruments = {
     { source=snd.kWavePOVosim, name="POVosim" },
 }
 
-function masterplayer.addInstrument(path, name)
-    masterplayer.instruments[#masterplayer.instruments+1] = { source=path, name=name }
+function masterplayer.addInstrument(instrumentProps, name)
+    print("adding instrument", instrumentProps, name)
+    masterplayer.instruments[#masterplayer.instruments+1] = { source=instrumentProps, name=name }
 end
