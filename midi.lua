@@ -17,7 +17,7 @@ local defaultWaveSustain<const> = 0.2
 local defaultWaveRelease <const> = 0
 
 function masterplayer.newWaveSynth(trackProps)
-    local s = snd.synth.new(trackProps.instrument.source or snd.kWaveSawtooth)
+    local s = snd.synth.new(trackProps.instrument.id or snd.kWaveSawtooth)
     s:setVolume(trackProps.volume or defaultWaveVolume)
     s:setADSR(
         trackProps.attack or defaultWaveAttack,
@@ -56,7 +56,11 @@ end
 
 function masterplayer.createSampledInstrument(trackProps)
     local inst = snd.instrument.new()
-    local instrumentProps = trackProps.instrument.source
+    local instrumentId = trackProps.instrument.id
+    local instrumentProps = masterplayer.instrumentProps[instrumentId]
+    if not instrumentProps then
+        error("Could not find sample instrument " .. instrumentId .. ". Did you install the Toybox and call masterplayer.addInstrument()?")
+    end
     print("creating sampled instrument for ", instrumentProps.id)
     local synth, noteProps, transpose, noteStart, noteEnd, noteRoot, offset
     local addedNoteProps = {}
@@ -81,7 +85,7 @@ function masterplayer.createSampledInstrument(trackProps)
 end
 
 function masterplayer.createInstrument(polyphony, trackProps)
-    if type(trackProps.instrument.source) == "table" then
+    if type(trackProps.instrument.id) == "string" then
         return masterplayer.createSampledInstrument(trackProps)
     else
         return masterplayer.createWaveInstrument(polyphony, trackProps)

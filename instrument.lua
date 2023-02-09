@@ -8,20 +8,23 @@ local snd <const> = playdate.sound
 
 local masterplayer <const> = masterplayer
 
-masterplayer.sawToothInstrument = { source=snd.kWaveSawtooth, name="Sawtooth" }
+masterplayer.sawToothInstrument = { id=snd.kWaveSawtooth, name="Sawtooth" }
 
 masterplayer.instruments = {
-    { source=snd.kWaveSine, name="Sine" },
-    { source=snd.kWaveSquare, name="Square" },
+    { id=snd.kWaveSine, name="Sine" },
+    { id=snd.kWaveSquare, name="Square" },
     masterplayer.sawToothInstrument,
-    { source=snd.kWaveTriangle, name="Triangle" },
-    { source=snd.kWaveNoise, name="Noise" },
-    { source=snd.kWavePOPhase, name="POPhase" },
-    { source=snd.kWavePODigital, name="PODigital" },
-    { source=snd.kWavePOVosim, name="POVosim" },
+    { id=snd.kWaveTriangle, name="Triangle" },
+    { id=snd.kWaveNoise, name="Noise" },
+    { id=snd.kWavePOPhase, name="POPhase" },
+    { id=snd.kWavePODigital, name="PODigital" },
+    { id=snd.kWavePOVosim, name="POVosim" },
 }
+
+masterplayer.instrumentProps = {}
 
 function masterplayer.addInstrument(instrumentProps, name)
     print("adding instrument", instrumentProps, name)
-    masterplayer.instruments[#masterplayer.instruments+1] = { source=instrumentProps, name=name }
+    masterplayer.instruments[#masterplayer.instruments+1] = { name=name, id=instrumentProps.id }
+    masterplayer.instrumentProps[instrumentProps.id] = instrumentProps
 end
