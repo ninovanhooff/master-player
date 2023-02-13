@@ -29,7 +29,6 @@ function masterplayer.newWaveSynth(trackProps)
 end
 
 function masterplayer.createSampleSynth(samplePath, trackProps)
-    print(samplePath)
     local sample = masterplayer.sampleCache:getOrLoad(samplePath)
     if not sample then
         error("sample not found: " .. samplePath)

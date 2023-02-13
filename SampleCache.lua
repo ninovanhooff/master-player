@@ -19,6 +19,7 @@ function masterplayer.SampleCache:getOrLoad(path)
         return self.map[path]
     end
 
+    print("Load sample", path)
     local sample = loadSample(path)
     self.map[path] = sample
     return sample
