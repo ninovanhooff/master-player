@@ -157,6 +157,12 @@ function masterplayer.loadMidi(path, _trackProps)
     local s = snd.sequence.new(path)
     local ntracks = s:getTrackCount()
     print("ntracks", ntracks)
+    if ntracks == 0 then
+        if playdate.file.exists(path) then
+            return nil, "Could not load " .. path .. ". File contains 0 tracks"
+        end
+        return nil, "Could not load " .. path .. ". File does not exist"
+    end
 
     if ntracks == #trackProps then
         return s, masterplayer.loadTrackProps(s, trackProps)

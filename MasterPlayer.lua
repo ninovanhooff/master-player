@@ -18,6 +18,9 @@ function masterplayer.MasterPlayer:init(songPath)
     self.trackProps = json.decodeFile(songPath .. ".json")
     print(songPath, trackProps)
     self.sequence, self.trackProps = masterplayer.loadMidi(songPath, self.trackProps)
+    if not self.sequence then
+        self.error = self.trackProps
+    end
 end
 
 function masterplayer.MasterPlayer:play()
@@ -37,5 +40,10 @@ function masterplayer.MasterPlayer:setVolume(vol)
 end
 
 function masterplayer.new(songPath)
-    return masterplayer.MasterPlayer(songPath)
+    local player = masterplayer.MasterPlayer(songPath)
+    if not player.error then
+        return nil, player.error
+    else
+        return player
+    end
 end
