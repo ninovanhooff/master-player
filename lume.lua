@@ -381,6 +381,15 @@ function lume.find(t, value)
     return nil
 end
 
+--- return index of value in table t; or nil
+function lume.findIndexOf(t, value)
+    local iter = getiter(t)
+    for k, v in iter(t) do
+        if v == value then return k end
+    end
+    return nil
+end
+
 
 function lume.match(t, fn)
     fn = iteratee(fn)
@@ -697,7 +706,7 @@ function lume.hotswap(modname)
             if type(v) == "table" then update(old[k], v) else old[k] = v end
         end
     end
-    local err = nil
+    local err
     local function onerror(e)
         for k in pairs(_G) do _G[k] = oldglobal[k] end
         err = lume.trim(e)
