@@ -20,6 +20,12 @@ function masterplayer.MasterPlayer:init(songPath)
     self.sequence, self.trackProps = masterplayer.loadMidi(songPath, self.trackProps)
     if not self.sequence then
         self.error = self.trackProps
+    else
+        for i,item in ipairs(trackProps) do
+            local inst, addedSynths = masterplayer.createInstrument(item)
+            self.synthReferences = lume.concat(self.synthReferences, addedSynths)
+            sequence:getTrackAtIndex(i):setInstrument(inst)
+        end
     end
 end
 
