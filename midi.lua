@@ -45,12 +45,15 @@ function masterplayer.createSampleSynth(samplePath, trackProps)
     return s
 end
 
-function masterplayer.createWaveInstrument(polyphony, trackProps)
+function masterplayer.createWaveInstrument(trackProps)
     local inst = snd.instrument.new()
-    for _=1, polyphony do
-        inst:addVoice(masterplayer.newWaveSynth(trackProps))
+    local addedSynths = {}
+    for _=1, trackProps.polyphony do
+        local synth = masterplayer.newWaveSynth(trackProps)
+        table.insert(addedSynths, synth)
+        inst:addVoice(synth)
     end
-    return inst
+    return inst, addedSynths
 end
 
 function masterplayer.createSampledInstrument(trackProps)
@@ -62,6 +65,7 @@ function masterplayer.createSampledInstrument(trackProps)
     end
     print("creating sampled instrument for ", instrumentProps.id)
     local synth, noteProps, transpose, noteStart, noteEnd, noteRoot, offset
+    local addedSynths = {}
     local addedNoteProps = {}
     for _, note in ipairs(trackProps.notes) do
         noteProps = instrumentProps[note]
@@ -73,6 +77,7 @@ function masterplayer.createSampledInstrument(trackProps)
                 offset = noteRoot - noteStart
                 transpose = 60 - noteStart - offset-- the default noteRoot is C4 (midi note 60)
                 synth = masterplayer.createSampleSynth( noteProps.path, trackProps)
+                table.insert(addedSynths, synth)
                 inst:addVoice(synth, noteStart, noteEnd, transpose )
                 table.insert(addedNoteProps, noteProps)
             end
@@ -80,14 +85,16 @@ function masterplayer.createSampledInstrument(trackProps)
             print("instrument does not support note " .. note)
         end
     end
-    return inst
+    return inst, addedSynths
 end
 
-function masterplayer.createInstrument(polyphony, trackProps)
+function masterplayer.createInstrument(trackProps)
     if type(trackProps.instrument.id) == "string" then
-        return masterplayer.createSampledInstrument(trackProps)
+        local inst, addedSynths = masterplayer.createSampledInstrument(trackProps)
+        return inst, addedSynths
     else
-        return masterplayer.createWaveInstrument(polyphony, trackProps)
+        local inst, addedSynths = masterplayer.createWaveInstrument(trackProps)
+        return inst, addedSynths
     end
 end
 
@@ -115,6 +122,7 @@ local function createTrackProps(s)
 
             local notes = getNotesForTrack(track)
             local props = {
+                polyphony = polyphony,
                 isMuted = #notes < 1,
                 isSolo = false,
                 notes = notes
@@ -128,8 +136,6 @@ local function createTrackProps(s)
             props.decay = defaultWaveDecay
             props.sustain = defaultWaveSustain
             props.release = defaultWaveRelease
-            local inst = masterplayer.createWaveInstrument(polyphony, trackProps[i])
-            track:setInstrument(inst)
         end
     end
 
@@ -142,10 +148,6 @@ function masterplayer.loadTrackProps(s, trackProps)
         local track = s:getTrackAtIndex(i)
         if not trackProps[i].notes then
             trackProps[i].notes = getNotesForTrack(track)
-        end
-        if track ~= nil then
-            local polyphony = track:getPolyphony()
-            track:setInstrument(masterplayer.createInstrument(polyphony, trackProps[i]))
         end
     end
     return trackProps
